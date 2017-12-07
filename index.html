@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<title>Pokedex</title>
+	<link href="https://fonts.googleapis.com/css?family=Oxygen" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<link rel="stylesheet" type="text/css" href="style/screen.min.css" />
+</head>
+<body>
+	<header class="header__navigation">
+		<div class="wrap">
+			<div class="header__logo">
+				<a href="#" class="header__logo__wordmark">Pokédex</a>
+			</div>
+			<button id="search__button"><i class="fa fa-search"></i></button>
+			<input type="text" id="pokemonNameInput" placeholder="Insert a Pokémon name...">
+		</div>
+	</header>
+	<main id="content">
+		<div id="loader"></div>
+		<img id="pokemonImage" />
+		<table id="infoPanel">
+			<tr>
+				<td><span id="pokemonName"></span></td>
+				<td><span id="pokemonId"></span></span></td>
+			</tr>
+		</table>
+		<h2>Description</h2>
+		<table id="descriptionPanel">
+			<tr>
+				<td><span id="pokemonDescription"></span></td>
+			</tr>
+		</table>
+		<h2>Types</h2>
+		<table id="typePanel">
+			<tr>
+				<td><div id="pokemonTypes"></div></td>
+			</tr>
+		</table>
+		<h2>Abilities</h2>
+		<table id="abilityPanel">
+			<tr>
+				<td><div id="pokemonAbilities"></div></td>
+			</tr>
+		</table>
+		<h2>Stats</h2>
+		<canvas id="statsPanel"></canvas>
+	</main>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.bundle.min.js"></script> 
+	<script src="script/lottie.js"></script>
+	<script src="script/app.js"></script> 
+</body>
+</html>
