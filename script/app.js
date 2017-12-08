@@ -1,3 +1,5 @@
+var myChart;
+
 String.prototype.toCapitalize = function()
 { 
    return this.toLowerCase().replace(/^.|\s\S/g, function(a) { return a.toUpperCase(); });
@@ -11,6 +13,28 @@ function loadingAnimation() {
 		autoplay: true,
 		path: 'data.json'
 	});
+}
+
+function nightMode( clicks ) {
+	var amount = clicks;
+	var nav = document.querySelector('.header__navigation');
+	var bg = document.querySelector('html');
+	var bdy = document.querySelector('body');
+	var content = document.getElementById('content');
+	var text = document.querySelectorAll("h1, h2, h3, h4, h5, h6, #infoPanel, #descriptionPanel, #typePanel, #abilityPanel, #evolutionPanel");
+	if (clicks % 2 == 0) {
+		nav.style.backgroundColor = 'rgb(216, 85, 43)';
+		for (i = 0; i < text.length; i++) {
+    		text[i].style.color = 'rgb(30, 20, 0)';
+		}
+		content.style.backgroundColor = 'rgb(254, 254, 254)'
+	} else {
+		nav.style.backgroundColor = 'rgb(30, 20, 0)';
+		for (i = 0; i < text.length; i++) {
+    		text[i].style.color = 'rgb(254, 254, 254)';
+		}
+		content.style.backgroundColor = 'rgb(12, 12, 12)';
+	}
 }
 
 function getTypeColor( string ) {
@@ -84,6 +108,73 @@ function getPokemonTypes( list ) {
 	}
 }
 
+function getPokemonEvolutions( string ) {
+	var xhttp = new XMLHttpRequest();
+	var url = string;
+	var pokemonEvolutions = document.querySelector( '#pokemonEvolutions' );
+	var pokemonEvolutionMethods = document.querySelector( '#pokemonEvolutionMethods' );
+	pokemonEvolutions.innerHTML = 'Loading...';
+	xhttp.onreadystatechange = function() {
+	    if (this.status == 200 && this.readyState == 4) {
+	       pokemonEvolutions.innerHTML = '';
+	       pokemonEvolutionMethods.innerHTML = ''
+	       var result = JSON.parse( xhttp.responseText );
+	       var chain = result.chain;
+
+	       // init: eerste Pokémon in chain
+	       var empty = document.createElement("td");
+	       document.getElementById("pokemonEvolutionMethods").appendChild(empty);
+
+	       var firstPokemon = document.createElement("td");
+	       firstPokemon.className = "evolution";
+	       var firstPokemonContents = document.createTextNode(chain.species.name.toCapitalize());
+	       firstPokemon.appendChild(firstPokemonContents);
+	       document.getElementById("pokemonEvolutions").appendChild(firstPokemon);
+
+	       var evolution = chain.evolves_to[0];
+	       var i = 0;
+	       
+	       while (evolution && evolution.hasOwnProperty('evolves_to')) {
+	       if (evolution.length != 0 && evolution.hasOwnProperty('evolves_to')) {
+	       	var level = document.createElement("td");
+	       	level.className = "level";
+	       	
+	       	var levelUpMethod = null;
+	       	var levelContents = evolution.evolution_details[0].min_level;
+	       	if (levelContents != null) {
+	       		levelContents = document.createTextNode(levelContents);
+	       	} else {
+	       		levelContents = document.createTextNode("Other");
+	       	}
+	       	level.appendChild(levelContents);
+	       	document.getElementById("pokemonEvolutionMethods").appendChild(level);
+
+	       	var empty = document.createElement("td");
+	       	document.getElementById("pokemonEvolutionMethods").appendChild(empty);
+
+	       	var arrow = document.createElement("td");
+	       	arrow.className = "next";
+	       	document.getElementById("pokemonEvolutions").appendChild(arrow);
+
+	       	var icon = document.createElement("i");
+	       	icon.className = "fa fa-arrow-right";
+	       	document.getElementsByClassName("next")[i].appendChild(icon);
+			var newEvolution = document.createElement("td");
+			newEvolution.className = "evolution";
+			var newEvolutionContents = document.createTextNode(evolution.species.name.toCapitalize());
+			newEvolution.appendChild(newEvolutionContents);
+			document.getElementById("pokemonEvolutions").appendChild(newEvolution);
+			i++;
+	       }
+	       if (evolution && evolution.hasOwnProperty('evolves_to')) {
+				evolution = evolution.evolves_to[0];
+			}
+		   }
+	    } 
+	};
+	xhttp.open("GET", url, true);
+	xhttp.send();
+}
 
 function getPokemonStats( list ) {
 	var stats = list;
@@ -94,7 +185,7 @@ function getPokemonStats( list ) {
 	var sdef = stats[1].base_stat;
 	var speed = stats[0].base_stat;
 	var ctx = document.getElementById("statsPanel").getContext('2d');
-	var myChart = new Chart(ctx, {
+	myChart = new Chart(ctx, {
 	    type: 'bar',
 	    data: {
 	        labels: ["HP", "Attack", "Defense", "Special Attack", "Special Defense", "Speed"],
@@ -122,6 +213,7 @@ function getPokemonStats( list ) {
 	        },
 	       	legend: {
     			display: false,
+
 			}
 	    }
 	});
@@ -145,7 +237,7 @@ function getPokemonImage ( number ) {
 		url = "media/pokemon/00" + id.toString() + ".webp";
 	}  else if (id >= 10 && id < 100) {
 		url = "media/pokemon/0" + id.toString() + ".webp";
-	} else if (id >= 100 && id <= 801) {
+	} else if (id >= 100 && id <= 802) {
 		url = "media/pokemon/" + id.toString() + ".webp";
 	}
 	image.src= url;
@@ -167,15 +259,20 @@ function formatPokemonId( number ) {
 function getPokemonFlavorText ( pokemon ) {
 	var xhttp = new XMLHttpRequest();
 	var pokemonDescription = document.querySelector( '#pokemonDescription' );
+	pokemonDescription.innerHTML = 'Loading...';
 	xhttp.onreadystatechange = function() {
 	    if (this.status == 200 && this.readyState == 4) {
 	       // Typical action to be performed when the document is ready:
 	       var result = JSON.parse( xhttp.responseText );
 	       var description = null;
 	       var flavorTextEntries = result.flavor_text_entries;
+	       var evolution_url = result.evolution_chain.url;
+	       getPokemonEvolutions(evolution_url)
 	       var i = 0;
 	       for (i = 0; i < flavorTextEntries.length; i++) {
-	       	if (flavorTextEntries[i].version.name == "alpha-sapphire" && flavorTextEntries[i].language.name == "en") {
+	       	if (flavorTextEntries[i].version.name == "moon" && flavorTextEntries[i].language.name == "en") {
+	       		description = flavorTextEntries[i].flavor_text;
+	       	} else if (flavorTextEntries[i].version.name == "alpha-sapphire" && flavorTextEntries[i].language.name == "en") {
 	       		description = flavorTextEntries[i].flavor_text;
 	       	}
 	       }
@@ -193,6 +290,7 @@ function searchPokemon( pokemon ) {
 	var pokemonTypes = document.getElementById( 'pokemonTypes' );
 	var pokemonStats = document.getElementById( 'statsPanel' );
 	var content = document.getElementById("content");
+	var loader = document.querySelector('.loader');
 	xhttp.onreadystatechange = function() {
 	    if (this.status == 200 && this.readyState == 4) {
 	       // Typical action to be performed when the document is ready:
@@ -211,12 +309,17 @@ function searchPokemon( pokemon ) {
 	       getPokemonTypes(types);
 	       getPokemonAbilities(abilities);
 	       var url = getPokemonImage(id);
+	       if (myChart !== undefined) {
+	       	myChart.destroy();
+	       }
 	       getPokemonStats(stats);
+	       loader.classList.toggle( 'hidden', 'visible' );
 	       content.style.borderColor = getTypeColor(getPokemonPrimaryType(types));
 	       document.getElementById("content").style.display = "block";
 	    } 
 	    if (this.status == 404) {
 	    	console.log( "Invalid input");
+	    	loader.classList.toggle( 'hidden', 'visible' );
 	    	document.getElementById("content").style.display = "none";
 	    }
 	};
@@ -226,9 +329,11 @@ function searchPokemon( pokemon ) {
 
 document.addEventListener( 'DOMContentLoaded', function() {
 	console.info( 'DOMContentLoaded is finished.' );
-	var button = document.querySelector("#search__button");
-
-	button.addEventListener( 'click', function() {
+	var searchButton = document.querySelector("#search__button");
+	var randomButton = document.querySelector("#random__button");
+	var nightButton = document.querySelector("#night__button");
+	var nightButtonClicks = 0;
+	searchButton.addEventListener( 'click', function() {
 		var input = document.getElementById('pokemonNameInput');
 	  	if (input.value.length === 0) {
 	  		console.log( 'No name given' );
@@ -237,12 +342,28 @@ document.addEventListener( 'DOMContentLoaded', function() {
 		}
 	});
 
+	randomButton.addEventListener( 'click', function() {
+		var random = Math.floor((Math.random() * 801) + 1);
+		var loader = document.querySelector('.loader');
+				loader.classList.toggle( 'hidden' );
+				loadingAnimation();
+	  	searchPokemon( random );
+	});
+
+	nightButton.addEventListener( 'click', function() {
+		nightButtonClicks++;
+		nightMode(nightButtonClicks);
+	});
+
+
 	document.addEventListener('keypress', function(e) {
 		if(e.keyCode === 13) {
 			var input = document.getElementById('pokemonNameInput');
 	  		if (input.value.length === 0) {
 	  			console.log( 'No name given' );
 			} else {
+				var loader = document.querySelector('.loader');
+				loader.classList.toggle( 'hidden' );
 				loadingAnimation();
 				searchPokemon( input.value.toLowerCase() );
 			}

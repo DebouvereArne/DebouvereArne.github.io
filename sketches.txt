@@ -1,0 +1,10 @@
+gulp.task('script', function() {
+	gulp.src('./src/script/**/*.js')
+	  .pipe(concat('app.js'))
+	  .pipe(rename({suffix: '.min'}))
+	  .pipe(uglify())
+	  .on('error', onError)
+	  .pipe(gulp.dest('./dist/script'));
+	  // .pipe(notify({ message: 'Scripts task complete ðŸ‘¨ðŸ¼â€ðŸ”§' }));
+	livereload.reload();
+});
