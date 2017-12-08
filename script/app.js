@@ -279,7 +279,7 @@ function getPokemonFlavorText ( pokemon ) {
 	       pokemonDescription.innerHTML = description;
 	    } 
 	};
-	xhttp.open("GET", "http://pokeapi.co/api/v2/pokemon-species/" + pokemon, true);
+	xhttp.open("GET", "https://pokeapi.co/api/v2/pokemon-species/" + pokemon, true);
 	xhttp.send();
 }
 
@@ -323,7 +323,7 @@ function searchPokemon( pokemon ) {
 	    	document.getElementById("content").style.display = "none";
 	    }
 	};
-	xhttp.open("GET", "http://pokeapi.co/api/v2/pokemon/" + pokemon, true);
+	xhttp.open("GET", "https://pokeapi.co/api/v2/pokemon/" + pokemon, true);
 	xhttp.send();
 }
 
