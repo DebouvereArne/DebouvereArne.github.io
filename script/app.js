@@ -122,10 +122,10 @@ function getPokemonEvolutions( string ) {
 	var pokemonEvolutions = document.querySelector( '#pokemonEvolutions' );
 	var pokemonEvolutionMethods = document.querySelector( '#pokemonEvolutionMethods' );
 	pokemonEvolutions.innerHTML = 'Loading...';
+	pokemonEvolutionMethods.innerHTML = ''
 	xhttp.onreadystatechange = function() {
 	    if (this.status == 200 && this.readyState == 4) {
 	       pokemonEvolutions.innerHTML = '';
-	       pokemonEvolutionMethods.innerHTML = ''
 	       var result = JSON.parse( xhttp.responseText );
 	       var chain = result.chain;
 
@@ -148,8 +148,53 @@ function getPokemonEvolutions( string ) {
 	       	level.className = "level";
 	       	
 	       	var levelUpMethod = null;
-	       	var levelContents = evolution.evolution_details[0].min_level;
-	       	if (levelContents != null) {
+	       	if (evolution.evolution_details[0].trigger.name === "level-up" && evolution.evolution_details[0].min_level != null && evolution.evolution_details[0].time_of_day === null) {
+	       		levelContents = "Level " + evolution.evolution_details[0].min_level;
+	       		levelContents = document.createTextNode(levelContents);
+	       	} else if (evolution.evolution_details[0].trigger.name === "level-up" && evolution.evolution_details[0].gender != null) {
+	       		levelContents = "Level " + evolution.evolution_details[0].min_level;
+	       		if (evolution.evolution_details[0].gender === 1) {
+	       			levelContents += " (Female)";
+	       		} else if (evolution.evolution_details[0].gender === 0) {
+	       			levelContents += " (Male)"
+	       		}
+	       		levelContents = document.createTextNode(levelContents);
+	       	} else if (evolution.evolution_details[0].trigger.name === "level-up" && evolution.evolution_details[0].min_happiness != null) {
+	       		levelContents = "Friendship";
+	       		levelContents = document.createTextNode(levelContents);
+	       	} else if (evolution.evolution_details[0].trigger.name === "level-up" && evolution.evolution_details[0].min_beauty != null) {
+	       		levelContents = "Level up with high beauty";
+	       		levelContents = document.createTextNode(levelContents);
+	       	} else if (evolution.evolution_details[0].trigger.name === "level-up" && evolution.evolution_details[0].known_move != null) {
+	       		levelContents = "Level up knowing " + evolution.evolution_details[0].known_move.name.replace("-"," ").toCapitalize();
+	       		levelContents = document.createTextNode(levelContents);
+	       	} else if (evolution.evolution_details[0].trigger.name === "level-up" && evolution.evolution_details[0].time_of_day != null && evolution.evolution_details[0].min_level != null) {
+	       		levelContents = "Level " + evolution.evolution_details[0].min_level + " (" + evolution.evolution_details[0].time_of_day + ")";
+	       		levelContents = document.createTextNode(levelContents);
+	       	} else if (evolution.evolution_details[0].trigger.name === "level-up" && evolution.evolution_details[0].time_of_day != null && evolution.evolution_details[0].held_item != null) {
+	       		levelContents = "Level up holding " + evolution.evolution_details[0].held_item.name.replace("-"," ").toCapitalize() + " (" + evolution.evolution_details[0].time_of_day + ")";
+	       		levelContents = document.createTextNode(levelContents);
+	       	} else if (evolution.evolution_details[0].trigger.name === "level-up" && evolution.evolution_details[0].location != null) {
+	       		levelContents = "Level up at ";
+	       		for (j = 0; j < evolution.evolution_details.length; j++) {
+	       			if (evolution.evolution_details[j].location != null) {
+	       				levelContents += evolution.evolution_details[j].location.name.replace("-"," ").toCapitalize() + ", ";
+	       			}
+	       		}
+	       		// remove last ', '
+	       		levelContents = levelContents.slice(0, -2);
+	       		levelContents = document.createTextNode(levelContents);
+	       	} else if (evolution.evolution_details[0].trigger.name === "trade" && evolution.evolution_details[0].held_item != null) {
+	       		levelContents = "Trade holding " + evolution.evolution_details[0].held_item.name.replace("-"," ").toCapitalize();
+	       		levelContents = document.createTextNode(levelContents);
+	       	} else if (evolution.evolution_details[0].trigger.name === "trade" && evolution.evolution_details[0].trade_species != null) {
+	       		levelContents = "Trade for " + evolution.evolution_details[0].trade_species.name.replace("-"," ").toCapitalize();
+	       		levelContents = document.createTextNode(levelContents);
+	       	} else if (evolution.evolution_details[0].trigger.name === "trade" && evolution.evolution_details[0].held_item === null && evolution.evolution_details[0].trade_species === null) {
+	       		levelContents = "Trade";
+	       		levelContents = document.createTextNode(levelContents);
+	       	} else if (evolution.evolution_details[0].trigger.name === "use-item") {
+	       		levelContents = "Use " + evolution.evolution_details[0].item.name.replace("-"," ").toCapitalize();
 	       		levelContents = document.createTextNode(levelContents);
 	       	} else {
 	       		levelContents = document.createTextNode("Other");
