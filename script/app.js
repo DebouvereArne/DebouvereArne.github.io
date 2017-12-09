@@ -148,7 +148,7 @@ function getPokemonEvolutions( string ) {
 	       	level.className = "level";
 	       	
 	       	var levelUpMethod = null;
-	       	if (evolution.evolution_details[0].trigger.name === "level-up" && evolution.evolution_details[0].min_level != null && evolution.evolution_details[0].time_of_day === null) {
+	       	if (evolution.evolution_details[0].trigger.name === "level-up" && evolution.evolution_details[0].min_level != null && evolution.evolution_details[0].time_of_day === "") {
 	       		levelContents = "Level " + evolution.evolution_details[0].min_level;
 	       		levelContents = document.createTextNode(levelContents);
 	       	} else if (evolution.evolution_details[0].trigger.name === "level-up" && evolution.evolution_details[0].gender != null) {
