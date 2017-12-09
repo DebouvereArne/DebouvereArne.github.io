@@ -11,7 +11,7 @@ function nightMode( clicks ) {
 	var bg = document.querySelector('html');
 	var bdy = document.querySelector('body');
 	var content = document.getElementById('content');
-	var text = document.querySelectorAll("h1, h2, h3, h4, h5, h6, #infoPanel, #descriptionPanel, #typePanel, #abilityPanel, #evolutionPanel");
+	var text = document.querySelectorAll("h1, h2, h3, h4, h5, h6, #infoPanel, #descriptionPanel, #typePanel, #abilityPanel, #evolutionPanel, #movePanel");
 	if (clicks % 2 == 0) {
 		nav.style.backgroundColor = 'rgb(216, 85, 43)';
 		for (i = 0; i < text.length; i++) {
@@ -25,6 +25,24 @@ function nightMode( clicks ) {
 		}
 		content.style.backgroundColor = 'rgb(12, 12, 12)';
 	}
+}
+
+// https://stackoverflow.com/questions/7558182/sort-a-table-fast-by-its-first-column-with-javascript-or-jquery
+function sortMovesByLevel() {
+    var tbl = document.getElementById("movePanel").tBodies[0];
+    var store = [];
+    for(var i=0, len=tbl.rows.length; i<len; i++){
+        var row = tbl.rows[i];
+        var sortnr = parseFloat(row.cells[0].textContent || row.cells[0].innerText);
+        if(!isNaN(sortnr)) store.push([sortnr, row]);
+    }
+    store.sort(function(x,y){
+        return x[0] - y[0];
+    });
+    for(var i=0, len=store.length; i<len; i++){
+        tbl.appendChild(store[i][1]);
+    }
+    store = null;
 }
 
 function getTypeColor( string ) {
@@ -273,12 +291,36 @@ function getPokemonFlavorText ( pokemon ) {
 	xhttp.send();
 }
 
+function getPokemonMoves( list ) {
+	var moves = list;
+	var table = document.getElementById("movePanel");
+	var j = 0;
+	for (i = 0; i < moves.length; i++) {
+		var name = null;
+		var level = null;
+		if (moves[i].version_group_details[0].move_learn_method.name == "level-up") {
+			name = moves[i].move.name.replace("-"," ").toCapitalize();
+			level = moves[i].version_group_details[0].level_learned_at;
+			var row = table.insertRow(j);
+			var levelCell = row.insertCell(0);
+			var moveCell = row.insertCell(1);
+			levelCell.className = "level__move";
+			moveCell.className = "move";
+			levelCell.innerHTML = level;
+			moveCell.innerHTML = name;
+			j++;
+		}
+	}
+	sortMovesByLevel();
+}
+
 function searchPokemon( pokemon ) {
 	var xhttp = new XMLHttpRequest();
 	var pokemonId = document.querySelector( '#pokemonId' );
 	var pokemonName = document.querySelector( '#pokemonName' );
 	var pokemonTypes = document.getElementById( 'pokemonTypes' );
 	var pokemonStats = document.getElementById( 'statsPanel' );
+	var pokemonMoves = document.getElementById( 'movePanel');
 	var content = document.getElementById("content");
 	var loader = document.querySelector('.loader');
 	xhttp.onreadystatechange = function() {
@@ -290,12 +332,14 @@ function searchPokemon( pokemon ) {
 	       var types = result.types;
 	       var abilities = result.abilities;
 	       var stats = result.stats;
+	       var moves = result.moves;
 	       getPokemonFlavorText(pokemon);
 	       pokemonId.innerHTML = formatPokemonId(id);
 	       pokemonName.innerHTML = name;
 	       pokemonTypes.innerHTML = "";
 	       pokemonAbilities.innerHTML = "";
 	       pokemonStats.innerHTML = "";
+	       pokemonMoves.innerHTML = "";
 	       getPokemonTypes(types);
 	       getPokemonAbilities(abilities);
 	       var url = getPokemonImage(id);
@@ -303,6 +347,7 @@ function searchPokemon( pokemon ) {
 	       	myChart.destroy();
 	       }
 	       getPokemonStats(stats);
+	       getPokemonMoves(moves);
 	       loader.classList.toggle( 'hidden', 'visible' );
 	       content.style.borderColor = getTypeColor(getPokemonPrimaryType(types));
 	       document.getElementById("content").style.display = "block";
