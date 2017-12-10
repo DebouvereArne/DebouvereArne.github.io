@@ -9,7 +9,6 @@ function nightMode( clicks ) {
 	var amount = clicks;
 	var nav = document.querySelector('.header__navigation');
 	var bg = document.querySelector('html');
-	var bdy = document.querySelector('body');
 	var content = document.getElementById('content');
 	var text = document.querySelectorAll("h1, h2, h3, h4, h5, h6, #infoPanel, #descriptionPanel, #typePanel, #abilityPanel, #evolutionPanel, #movePanel");
 	if (clicks % 2 == 0) {
@@ -24,6 +23,21 @@ function nightMode( clicks ) {
     		text[i].style.color = 'rgb(254, 254, 254)';
 		}
 		content.style.backgroundColor = 'rgb(12, 12, 12)';
+	}
+}
+
+function toggleGraph( clicks ) {
+	var amount = clicks;
+	if (clicks % 2 == 0) {
+		document.getElementById('statsPanel').style.display = "block";
+		document.getElementById('statsPanel').style.visibility = "visible";
+		document.getElementById('statsTitle').style.display = "block";
+		document.getElementById('statsTitle').style.visibility = "visible";
+	} else {
+		document.getElementById('statsPanel').style.display = "none";
+		document.getElementById('statsPanel').style.visibility = "hidden";
+		document.getElementById('statsTitle').style.display = "none";
+		document.getElementById('statsTitle').style.visibility = "hidden";
 	}
 }
 
@@ -258,19 +272,30 @@ function getPokemonStats( list ) {
 	    },
 	    options: {
 	        scales: {
+	        	xAxes: [{
+            		ticks: {
+                		fontSize: 32,
+                		autoSkip: false,
+                    	maxRotation: 90,
+                    	minRotation: 90
+            		}
+        		}],
 	            yAxes: [{
 	                ticks: {
-	                    beginAtZero:true
+	                    beginAtZero:true,
+	                    fontSize: 24
 	                }
 	            }]
 	        },
 	       	legend: {
     			display: false,
-
-			}
+			},
+			responsive: true, 
+			maintainAspectRatio: false
 	    }
 	});
 }
+
 function getPokemonPrimaryType ( list ) {
 	var types = list;
 	var primaryType = null;
@@ -409,21 +434,12 @@ function searchPokemon( pokemon ) {
 
 document.addEventListener( 'DOMContentLoaded', function() {
 	console.info( 'DOMContentLoaded is finished.' );
-	var searchButton = document.querySelector("#search__button");
+
 	var randomButton = document.querySelector("#random__button");
 	var nightButton = document.querySelector("#night__button");
+	var graphButton = document.querySelector("#graph__button");
 	var nightButtonClicks = 0;
-	searchButton.addEventListener( 'click', function() {
-		var input = document.getElementById('pokemonNameInput');
-	  	if (input.value.length === 0) {
-	  		console.log( 'No name given' );
-		} else {
-			loadingAnimation();
-			var loader = document.querySelector('.loader');
-			loader.classList.toggle( 'hidden' );
-			searchPokemon( input.value.toLowerCase() );
-		}
-	});
+	var graphButtonClicks = 0;
 
 	randomButton.addEventListener( 'click', function() {
 		var random = Math.floor((Math.random() * 801) + 1);
@@ -437,6 +453,10 @@ document.addEventListener( 'DOMContentLoaded', function() {
 		nightMode(nightButtonClicks);
 	});
 
+	graphButton.addEventListener( 'click', function() {
+		graphButtonClicks++;
+		toggleGraph(graphButtonClicks);
+	});
 
 	document.addEventListener('keypress', function(e) {
 		if(e.keyCode === 13) {
